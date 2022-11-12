@@ -26,16 +26,16 @@ def doLookup(q, lookups, idx):
         if len(batch) == 10:
 
             logging.debug("Batch len == 10, querying")
-            results = wloc.QueryBSSID(batch)
+            results = wloc.QueryBSSIDs(batch)
             queryTime = int(time.time())
 
             for result in results:
 
-                lat, lon = results[result]
+                #lat, lon = results[result]
                 #lookups[idx].append((queryTime, result, lat, lon))
 
                 with open(args.output_file, 'a') as f:
-                    f.write(f"{queryTime}\t{result}\t{lat},{lon}\n")
+                    f.write(f"{queryTime}\t{result}\t{' '.join([str(x) for x in results[result]])}\n")
 
             #Account for all the finished tasks we've done here
             for i in range(len(batch)):
@@ -84,7 +84,7 @@ def geolocate(bssidSet, numThreads):
     for i in range(numThreads):
         lookups[i] = []
         worker = Thread(target=doLookup, args=(q,lookups, i))
-        worker.setDaemon(True)
+        worker.daemon = True
         worker.start()
 
     q.join()
